@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thyu.dao.HouseDao">
+	<select id="getHouseList" resultType="map">
+		SELECT h.house_id id,GROUP_CONCAT(o.owner_name) owners,h.house_address address,
+			h.house_use houseUse,h.house_area areas  
+			FROM house h LEFT JOIN house_owner ho ON h.house_id=ho.house_id 
+			LEFT JOIN houseowner o ON ho.owner_id=o.owner_id 
+			<where>
+				<if test="houseAddress!=null and houseAddress!=''">
+					and h.house_address LIKE CONCAT('%',#{houseAddress},'%') 
+				</if>
+			</where>
+			GROUP BY h.house_id 
+			<if test="ownerName!=null and ownerName!=''">
+				HAVING owners LIKE CONCAT('%',#{ownerName},'%')
+			</if>
+	</select>
+	<insert id="addHouse" useGeneratedKeys="true" keyProperty="houseId">
+		insert into house set house_address=#{houseAddress},house_use=#{houseUse},
+			house_area=#{houseArea},house_pic=#{housePic} 
+	</insert>
+	
+	<resultMap type="House" id="houseMap" autoMapping="true">
+		<id property="houseId" column="house_id"/>
+		<collection property="owners" ofType="Owner" autoMapping="true">
+			<id property="ownerId" column="owner_id"/>
+		</collection>
+	</resultMap>
+	<select id="getHouseById" resultMap="houseMap">
+		SELECT h.*,o.* FROM house h LEFT JOIN house_owner ho ON h.house_id=ho.house_id 
+			LEFT JOIN houseowner o ON ho.owner_id=o.owner_id WHERE h.house_id=#{houseId}
+	</select>
+	
+	<update id="updateHouse">
+		update house 
+		<set>
+			<if test="houseAddress!=null and houseAddress!=''">
+				house_address=#{houseAddress},
+			</if>
+			<if test="houseUse!=null and houseUse!=''">
+				house_use=#{houseUse},
+			</if>
+			<if test="houseArea!=null and houseArea>0">
+				house_area=#{houseArea},
+			</if>
+			<if test="housePic!=null and housePic!=''">
+				house_pic=#{housePic},
+			</if>
+		</set>
+			 where house_id=#{houseId}
+	</update>
+</mapper>

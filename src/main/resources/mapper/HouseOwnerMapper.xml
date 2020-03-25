@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thyu.dao.HouseOwnerDao">
+	<insert id="addHouseOwner">
+		insert into house_owner values 
+		<foreach collection="oids" item="oid" separator=",">
+			(#{houseId},#{oid})
+		</foreach>
+	</insert>
+	<delete id="deleteByHouseId">
+		delete from house_owner where house_id=#{houseId} 
+	</delete>
+</mapper>
